@@ -25,7 +25,7 @@ public class JwtService {
     private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
     // Durée de validité du token : 24 heures (en millisecondes)
-    private static final long JWT_EXPIRATION = 1000 * 60 * 24;
+    private static final long JWT_EXPIRATION = 1000 * 60 * 60 * 24;
 
     /**
      * Extrait le username (email) du token JWT.
