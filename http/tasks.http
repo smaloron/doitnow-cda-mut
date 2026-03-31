@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:8080/api/tasks
+
+### Création de tâche
+# @name createTask
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "Apprendre Spring Boot",
+  "description": "Coder une application REST"
+}
+
+> {% client.global.set("taskId", response.body.id); %}
+
+### Obtenir toutes les tâches
+# @name getAllTasks
+GET {{baseUrl}}
+Accept: application/json
+
+### Obtenir le détail d'une tâche
+# @name findOneTask
+GET {{baseUrl}}/{{taskId}}
+Accept: application/json
+
+### Mise à jour d'une tâche
+# @name updateTask
+PUT {{baseUrl}}/{{taskId}}
+Content-Type: application/json
+
+{
+  "title": "Apprendre Spring Boot",
+  "description": "Coder une application REST complète",
+  "completed": true
+}
+
+### Suppression d'une tâche
+# @name deleteTask
+DELETE {{baseUrl}}/{{taskId}}
