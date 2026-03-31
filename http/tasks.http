@@ -1,9 +1,12 @@
 @baseUrl = http://localhost:8080/api/tasks
+@jwt = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc0OTY5OTAyLCJleHAiOjE3NzQ5NzEzNDJ9.7UWPp_rbjpxkhCzix--sHKn4JTfhNaoe1AWX35zyXHw
 
 ### Création de tâche
 # @name createTask
 POST {{baseUrl}}
 Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
 
 {
   "title": "Apprendre Spring Boot",
@@ -16,16 +19,19 @@ Content-Type: application/json
 # @name getAllTasks
 GET {{baseUrl}}
 Accept: application/json
+Authorization: Bearer {{jwt}}
 
 ### Obtenir le détail d'une tâche
 # @name findOneTask
 GET {{baseUrl}}/{{taskId}}
 Accept: application/json
+Authorization: Bearer {{jwt}}
 
 ### Obtenir une tâche non existante
 # @name findNonExistentTask
 GET {{baseUrl}}/99999
 Accept: application/json
+Authorization: Bearer {{jwt}}
 
 > {%
 
@@ -38,6 +44,7 @@ Accept: application/json
 # @name updateTask
 PUT {{baseUrl}}/{{taskId}}
 Content-Type: application/json
+Authorization: Bearer {{jwt}}
 
 {
   "title": "Apprendre Spring Boot",
@@ -49,6 +56,7 @@ Content-Type: application/json
 # @name updateNonExistentTask
 PUT {{baseUrl}}/99999
 Content-Type: application/json
+Authorization: Bearer {{jwt}}
 
 {
   "title": "Apprendre Spring Boot",
@@ -66,10 +74,12 @@ Content-Type: application/json
 ### Suppression d'une tâche
 # @name deleteTask
 DELETE {{baseUrl}}/{{taskId}}
+Authorization: Bearer {{jwt}}
 
 ### Suppression d'une tâche inexistante
 # @name deleteNonExistentTask
 DELETE {{baseUrl}}/99999
+Authorization: Bearer {{jwt}}
 
 > {%
 
