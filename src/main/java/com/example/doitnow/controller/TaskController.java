@@ -3,6 +3,7 @@ package com.example.doitnow.controller;
 import com.example.doitnow.dto.CreateTaskDTO;
 import com.example.doitnow.dto.TaskDTO;
 import com.example.doitnow.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public TaskDTO createTask(@RequestBody CreateTaskDTO taskToCreate) {
+    public TaskDTO createTask(@Valid @RequestBody CreateTaskDTO taskToCreate) {
         return this.taskService.save(taskToCreate);
     }
 
@@ -33,7 +34,7 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public TaskDTO updateTask(@PathVariable String id, @RequestBody TaskDTO taskDTO) {
+    public TaskDTO updateTask(@PathVariable String id, @Valid @RequestBody TaskDTO taskDTO) {
         return taskService.updateTask(id, taskDTO);
     }
 

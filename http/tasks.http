@@ -22,6 +22,18 @@ Accept: application/json
 GET {{baseUrl}}/{{taskId}}
 Accept: application/json
 
+### Obtenir une tâche non existante
+# @name findNonExistentTask
+GET {{baseUrl}}/99999
+Accept: application/json
+
+> {%
+
+    client.test("FIND By ID retourne 404", function(){
+        client.assert(response.status === 404, "Attendu 404", "reçu " + response.status)
+    })
+%}
+
 ### Mise à jour d'une tâche
 # @name updateTask
 PUT {{baseUrl}}/{{taskId}}
@@ -33,6 +45,35 @@ Content-Type: application/json
   "completed": true
 }
 
+### Mise à jour d'une tâche non existante
+# @name updateNonExistentTask
+PUT {{baseUrl}}/99999
+Content-Type: application/json
+
+{
+  "title": "Apprendre Spring Boot",
+  "description": "Coder une application REST complète",
+  "completed": true
+}
+
+> {%
+
+    client.test("UPDATE retourne 404", function(){
+        client.assert(response.status === 404, "Attendu 404", "reçu " + response.status)
+    })
+%}
+
 ### Suppression d'une tâche
 # @name deleteTask
 DELETE {{baseUrl}}/{{taskId}}
+
+### Suppression d'une tâche inexistante
+# @name deleteNonExistentTask
+DELETE {{baseUrl}}/99999
+
+> {%
+
+    client.test("DELETE retourne 404", function(){
+    client.assert(response.status === 404, "Attendu 404", "reçu " + response.status)
+})
+%}

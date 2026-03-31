@@ -2,6 +2,7 @@ package com.example.doitnow.service;
 
 import com.example.doitnow.dto.CreateTaskDTO;
 import com.example.doitnow.dto.TaskDTO;
+import com.example.doitnow.exception.ResourceNotFoundException;
 import com.example.doitnow.model.Task;
 import com.example.doitnow.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
+
 
     private TaskRepository taskRepository;
 
@@ -31,6 +33,9 @@ public class TaskService {
     }
 
     public TaskDTO updateTask(String id, TaskDTO taskDTO) {
+        this.taskRepository.findById(id).orElseThrow(
+                ()->new ResourceNotFoundException("La tâche " + id + " n'existe pas")
+        );
         Task task = convertToEntity(taskDTO);
         task.setId(id); // Assure que l'ID est le bon
         Task updatedTask = taskRepository.save(task);
@@ -46,10 +51,13 @@ public class TaskService {
     public TaskDTO findTaskById(String id) {
         return taskRepository.findById(id)
                 .map(this::convertToDTO)
-                .orElse(null);
+                .orElseThrow(()-> new ResourceNotFoundException("La tâche " + id + " n'existe pas"));
     }
 
     public void deleteTask(String id) {
+        this.taskRepository.findById(id).orElseThrow(
+                ()->new ResourceNotFoundException("La tâche " + id + " n'existe pas")
+        );
         taskRepository.deleteById(id);
     }
 
