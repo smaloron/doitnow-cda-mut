@@ -3,13 +3,14 @@ package com.example.doitnow.controller;
 import com.example.doitnow.dto.auth.AuthenticationRequest;
 import com.example.doitnow.dto.auth.AuthenticationResponse;
 import com.example.doitnow.dto.auth.RegisterRequest;
+import com.example.doitnow.model.User;
+import com.example.doitnow.repository.UserRepository;
 import com.example.doitnow.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 // Dans controller/AuthenticationController.java
 @RestController
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final UserRepository userRepository;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
@@ -31,5 +33,10 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request
     ) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
+    }
+
+    @GetMapping("/all-users")
+    public List<User> getAllUsers() {
+        return ResponseEntity.ok(userRepository.findAll()).getBody();
     }
 }

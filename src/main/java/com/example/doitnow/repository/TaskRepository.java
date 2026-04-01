@@ -1,17 +1,14 @@
 package com.example.doitnow.repository;
 
 import com.example.doitnow.model.Task;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface TaskRepository {
+public interface TaskRepository extends MongoRepository<Task, String> {
+    List<Task> findByCompleted(boolean completed);
 
-    Task save(Task task);
+    List<Task> findByTitleContainingIgnoreCase(String keyword);
 
-    Optional<Task> findById(String id);
-
-    List<Task> findAll();
-
-    void deleteById(String id);
 }
