@@ -1,0 +1,27 @@
+services:
+
+  mongodb:
+    image: mongo:7           # Image officielle MongoDB version 7
+    container_name: mongo-db
+    ports:
+      - "27017:27017"        # Port exposé sur votre machine
+    volumes:
+      - mongo-data:/data/db  # Volume nommé pour persister les données
+    environment:
+      MONGO_INITDB_DATABASE: doitnow  # Base de données créée au démarrage
+    restart: unless-stopped  # Redémarre automatiquement sauf arrêt manuel
+
+  mongo-express:
+    image: mongo-express:latest   # Interface web d'administration
+    container_name: mongo-express
+    ports:
+      - "8082:8081"               # Accessible sur http://localhost:8082
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH: "false"   # Pas d'authentification (dev uniquement !)
+    depends_on:
+      - mongodb                   # Attend que MongoDB soit démarré
+    restart: unless-stopped
+
+volumes:
+  mongo-data:   # Déclaration du volume nommé — les données survivent aux redémarrages
