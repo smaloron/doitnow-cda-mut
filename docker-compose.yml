@@ -4,7 +4,7 @@ services:
     image: mongo:7           # Image officielle MongoDB version 7
     container_name: mongo-db
     ports:
-      - "27017:27017"        # Port exposé sur votre machine
+      - "27018:27017"        # Port exposé sur votre machine
     volumes:
       - mongo-data:/data/db  # Volume nommé pour persister les données
     environment:
