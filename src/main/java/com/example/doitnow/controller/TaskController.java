@@ -2,8 +2,10 @@ package com.example.doitnow.controller;
 
 import com.example.doitnow.dto.CreateTaskDTO;
 import com.example.doitnow.dto.TaskDTO;
+import com.example.doitnow.model.Priority;
 import com.example.doitnow.service.TaskService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,8 +31,24 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<TaskDTO> getAllTasks() {
-        return this.taskService.getAllTasks();
+    public List<TaskDTO> getAllTasks(
+            @RequestParam(required = false)
+            Priority priority,
+            @RequestParam(required = false)
+            String tag
+    ) {
+
+        if (priority != null) {
+            return ResponseEntity.ok(
+                    taskService.getTasksByPriority(
+                            priority)).getBody();
+        }
+        if (tag != null) {
+            return ResponseEntity.ok(
+                    taskService.getTasksByTag(tag)).getBody();
+        }
+        return ResponseEntity.ok(
+                taskService.getAllTasks()).getBody();
     }
 
     @PutMapping("/{id}")
@@ -41,6 +59,13 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public void deleteTask(@PathVariable String id) {
         taskService.deleteTask(id);
+    }
+
+    @GetMapping("/overdue")
+    public ResponseEntity<List<TaskDTO>>
+    getOverdueTasks() {
+        return ResponseEntity.ok(
+                taskService.getOverdueTasks());
     }
 
 }

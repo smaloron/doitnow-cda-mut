@@ -3,6 +3,7 @@ package com.example.doitnow.service;
 import com.example.doitnow.dto.CreateTaskDTO;
 import com.example.doitnow.dto.TaskDTO;
 import com.example.doitnow.exception.ResourceNotFoundException;
+import com.example.doitnow.model.Priority;
 import com.example.doitnow.model.Task;
 import com.example.doitnow.model.User;
 import com.example.doitnow.repository.TaskRepository;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +72,31 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
+    public List<TaskDTO> getTasksByPriority(
+            Priority priority) {
+        return taskRepository
+                .findByPriorityAndUserId(
+                        priority, getCurrentUserId()).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<TaskDTO> getTasksByTag(String tag) {
+        return taskRepository
+                .findByTagsContainingAndUserId(
+                        getCurrentUserId(), tag).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<TaskDTO> getOverdueTasks() {
+        return taskRepository
+                .findByCompletedFalseAndDueDateBeforeAndUserId(
+                        LocalDate.now(), getCurrentUserId()).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 
     private TaskDTO convertToDTO(Task task) {
         TaskDTO dto = new TaskDTO();
@@ -78,6 +105,9 @@ public class TaskService {
         dto.setDescription(task.getDescription());
         dto.setCompleted(task.isCompleted());
         dto.setUserId(task.getUserId());
+        dto.setPriority(task.getPriority());
+        dto.setTags(task.getTags());
+        dto.setDueDate(task.getDueDate());
         return dto;
     }
 
@@ -87,6 +117,9 @@ public class TaskService {
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
         task.setCompleted(dto.isCompleted());
+        task.setPriority(dto.getPriority());
+        task.setTags(dto.getTags());
+        task.setDueDate(dto.getDueDate());
         return task;
     }
 }

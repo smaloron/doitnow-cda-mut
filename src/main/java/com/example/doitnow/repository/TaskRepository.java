@@ -1,5 +1,6 @@
 package com.example.doitnow.repository;
 
+import com.example.doitnow.model.Priority;
 import com.example.doitnow.model.Task;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -17,7 +18,7 @@ public interface TaskRepository extends MongoRepository<Task, String> {
 
     List<Task> findByUserId(String currentUserId);
 
-    List<Task> findByPriorityAndUserId(String priority, String userId);
+    List<Task> findByPriorityAndUserId(Priority priority, String userId);
     List<Task> findByTagsContainingAndUserId(String tag, String userId);
 
     List<Task> findByCompletedFalseAndDueDateBeforeAndUserId(LocalDate dueDate, String userId);
