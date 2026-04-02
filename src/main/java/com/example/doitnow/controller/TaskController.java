@@ -78,4 +78,16 @@ public class TaskController {
         return taskStatsService.getStatsForUserId(userId);
     }
 
+    /**
+     * PATCH /api/tasks/{id}/steps/{stepIndex}
+     * Bascule le statut completed d'un step (0-based index).
+     * La complétion de la tâche parente est recalculée automatiquement.
+     */
+    @PatchMapping("/{id}/steps/{stepIndex}")
+    public ResponseEntity<TaskDTO> toggleStep(
+            @PathVariable String id,
+            @PathVariable int stepIndex) {
+        return ResponseEntity.ok(taskService.toggleStep(id, stepIndex));
+    }
+
 }

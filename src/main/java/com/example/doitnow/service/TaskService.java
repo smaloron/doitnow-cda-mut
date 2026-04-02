@@ -1,9 +1,11 @@
 package com.example.doitnow.service;
 
 import com.example.doitnow.dto.CreateTaskDTO;
+import com.example.doitnow.dto.StepDTO;
 import com.example.doitnow.dto.TaskDTO;
 import com.example.doitnow.exception.ResourceNotFoundException;
 import com.example.doitnow.model.Priority;
+import com.example.doitnow.model.Step;
 import com.example.doitnow.model.Task;
 import com.example.doitnow.model.User;
 import com.example.doitnow.repository.TaskRepository;
@@ -12,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +43,10 @@ public class TaskService {
         task.setTags(taskToCreate.getTags());
         task.setDueDate(taskToCreate.getDueDate());
 
+        task.setSteps(toStepList(taskToCreate.getSteps()));
+        task.setCompleted(false);
+        task.refreshCompletionFromSteps();
+
         Task savedTask = taskRepository.save(task);
 
         return convertToDTO(savedTask);
@@ -52,8 +59,48 @@ public class TaskService {
         );
         Task task = convertToEntity(taskDTO);
         task.setId(id); // Assure que l'ID est le bon
+
+        // Mise à jour des steps, puis re-calcul de la complétion
+        if (taskDTO.getSteps() != null) {
+            task.setSteps(toStepList(taskDTO.getSteps()));
+            task.refreshCompletionFromSteps();
+        } else {
+            // Pas de steps fournis : on respecte la valeur manuelle du DTO
+            task.setCompleted(taskDTO.isCompleted());
+        }
+
         Task updatedTask = taskRepository.save(task);
         return convertToDTO(updatedTask);
+    }
+
+    /**
+     * Bascule le statut completed d'un step identifié par son index (0-based).
+     * Recalcule ensuite automatiquement la complétion de la tâche parente.
+     *
+     * @param taskId    identifiant de la tâche
+     * @param stepIndex index du step dans la liste (0-based)
+     * @return le TaskDTO mis à jour
+     */
+    public TaskDTO toggleStep(String taskId, int stepIndex) {
+        Task task = taskRepository.findByIdAndUserId(taskId, getCurrentUserId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Tâche non trouvée avec l'id : " + taskId));
+
+        List<Step> steps = task.getSteps();
+        if (steps == null || stepIndex < 0 || stepIndex >= steps.size()) {
+            throw new ResourceNotFoundException(
+                    "Step introuvable à l'index " + stepIndex + " pour la tâche : " + taskId);
+        }
+
+        Step step = steps.get(stepIndex);
+        step.setCompleted(!step.isCompleted());
+
+        // Recalcul automatique de la complétion de la tâche
+        task.refreshCompletionFromSteps();
+
+        TaskDTO result = convertToDTO(taskRepository.save(task));
+
+        return result;
     }
 
     public List<TaskDTO> getAllTasks() {
@@ -113,6 +160,11 @@ public class TaskService {
         dto.setDueDate(task.getDueDate());
         dto.setCreatedAt(task.getCreatedAt());
         dto.setUpdatedAt(task.getUpdatedAt());
+
+        dto.setSteps(toStepDTOList(task.getSteps()));
+        dto.setStepsCompletionRate(task.getStepsCompletionRate());
+
+
         return dto;
     }
 
@@ -127,5 +179,20 @@ public class TaskService {
         task.setDueDate(dto.getDueDate());
 
         return task;
+    }
+
+    // Convertit une liste de StepDTO en une liste de Step
+    private List<Step> toStepList(List<StepDTO> dtos) {
+        if (dtos == null) return new ArrayList<>();
+        return dtos.stream()
+                .map(dto -> new Step(dto.getName(), dto.isCompleted()))
+                .toList();
+    }
+
+    private List<StepDTO> toStepDTOList(List<Step> steps) {
+        if (steps == null) return new ArrayList<>();
+        return steps.stream()
+                .map(s -> new StepDTO(s.getName(), s.isCompleted()))
+                .toList();
     }
 }

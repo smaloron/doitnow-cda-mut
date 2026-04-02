@@ -93,3 +93,137 @@ Authorization: Bearer {{jwt}}
 GET {{baseUrl}}/stats
 Accept: application/json
 Authorization: Bearer {{jwt}}
+
+###################################################################
+#                     GESTION DES STEPS                           #
+###################################################################
+
+### Création d'une tâche avec des steps
+# @name createTaskWithSteps
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+  "title": "Préparer la présentation",
+  "description": "Présentation du projet DoItNow",
+  "priority": "HIGH",
+  "tags": ["présentation", "projet"],
+  "steps": [
+    { "name": "Créer le plan" },
+    { "name": "Rédiger les slides" },
+    { "name": "Préparer la démo" }
+  ]
+}
+
+> {% client.global.set("taskWithStepsId", response.body.id); %}
+
+### Vérifier la tâche créée avec ses steps
+# @name getTaskWithSteps
+GET {{baseUrl}}/{{taskWithStepsId}}
+Accept: application/json
+Authorization: Bearer {{jwt}}
+
+> {%
+    client.test("La tâche contient 3 steps", function() {
+        client.assert(response.body.steps.length === 3, "Attendu 3 steps, reçu " + response.body.steps.length);
+    });
+    client.test("Aucun step n'est complété", function() {
+        var allIncomplete = response.body.steps.every(function(s) { return !s.completed; });
+        client.assert(allIncomplete, "Tous les steps devraient être non complétés");
+    });
+    client.test("Le taux de complétion est 0", function() {
+        client.assert(response.body.stepsCompletionRate === 0, "Attendu 0, reçu " + response.body.stepsCompletionRate);
+    });
+%}
+
+### Compléter le premier step (index 0)
+# @name toggleStep0
+PATCH {{baseUrl}}/{{taskWithStepsId}}/steps/0
+Authorization: Bearer {{jwt}}
+
+> {%
+    client.test("Le step 0 est maintenant complété", function() {
+        client.assert(response.body.steps[0].completed === true, "Le step 0 devrait être complété");
+    });
+    client.test("La tâche n'est pas encore complétée", function() {
+        client.assert(response.body.completed === false, "La tâche ne devrait pas être complétée");
+    });
+%}
+
+### Compléter le deuxième step (index 1)
+# @name toggleStep1
+PATCH {{baseUrl}}/{{taskWithStepsId}}/steps/1
+Authorization: Bearer {{jwt}}
+
+### Compléter le troisième step (index 2)
+# @name toggleStep2
+PATCH {{baseUrl}}/{{taskWithStepsId}}/steps/2
+Authorization: Bearer {{jwt}}
+
+> {%
+    client.test("Tous les steps sont complétés", function() {
+        var allComplete = response.body.steps.every(function(s) { return s.completed; });
+        client.assert(allComplete, "Tous les steps devraient être complétés");
+    });
+    client.test("La tâche est automatiquement complétée", function() {
+        client.assert(response.body.completed === true, "La tâche devrait être complétée");
+    });
+    client.test("Le taux de complétion est 100%", function() {
+        client.assert(response.body.stepsCompletionRate === 100.0, "Attendu 100, reçu " + response.body.stepsCompletionRate);
+    });
+%}
+
+### Décompléter un step (toggle inverse)
+# @name untoggleStep1
+PATCH {{baseUrl}}/{{taskWithStepsId}}/steps/1
+Authorization: Bearer {{jwt}}
+
+> {%
+    client.test("Le step 1 est redevenu non complété", function() {
+        client.assert(response.body.steps[1].completed === false, "Le step 1 devrait être non complété");
+    });
+    client.test("La tâche n'est plus complétée", function() {
+        client.assert(response.body.completed === false, "La tâche ne devrait plus être complétée");
+    });
+%}
+
+### Toggle sur un step avec index invalide
+# @name toggleInvalidStepIndex
+PATCH {{baseUrl}}/{{taskWithStepsId}}/steps/99
+Authorization: Bearer {{jwt}}
+
+> {%
+    client.test("Toggle step invalide retourne 400", function() {
+        client.assert(response.status === 400, "Attendu 400, reçu " + response.status);
+    });
+%}
+
+### Mise à jour d'une tâche avec modification des steps
+# @name updateTaskSteps
+PUT {{baseUrl}}/{{taskWithStepsId}}
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+  "title": "Préparer la présentation",
+  "description": "Présentation du projet DoItNow - version finale",
+  "priority": "HIGH",
+  "steps": [
+    { "name": "Créer le plan", "completed": true },
+    { "name": "Rédiger les slides", "completed": true },
+    { "name": "Préparer la démo", "completed": false },
+    { "name": "Répéter la présentation", "completed": false }
+  ]
+}
+
+> {%
+    client.test("La tâche contient maintenant 4 steps", function() {
+        client.assert(response.body.steps.length === 4, "Attendu 4 steps, reçu " + response.body.steps.length);
+    });
+%}
+
+### Nettoyage : suppression de la tâche avec steps
+# @name deleteTaskWithSteps
+DELETE {{baseUrl}}/{{taskWithStepsId}}
+Authorization: Bearer {{jwt}}
