@@ -45,7 +45,7 @@ public class TaskStatsService {
                         .and("completed").is(false)
                         .and("dueDate").lt(new java.util.Date())
         );
-        long overdue = mongoTemplate.count(q2, "tasks");
+        long overdue = mongoTemplate.count(q3, "tasks");
         stats.setOverdue(overdue);
 
         if (total > 0) {
@@ -55,6 +55,8 @@ public class TaskStatsService {
         }
 
         stats.setTaskByPriority(getTaskCountByPriority(userId));
+
+        stats.setTaskByTag(getTaskCountByTag(userId));
 
         return stats;
     }
@@ -75,5 +77,24 @@ public class TaskStatsService {
             tasksByPriority.put(doc.getString("priority"), doc.get("count",Number.class).longValue());
         }
         return tasksByPriority;
+    }
+
+    Map<String, Long> getTaskCountByTag(String userId) {
+        Aggregation byTag = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("userId").is(userId)),
+                Aggregation.unwind("$tags"),
+                Aggregation.group("tags").count().as("count"),
+                Aggregation.project("count").and("_id").as("tag")
+        );
+
+        AggregationResults<org.bson.Document> results = mongoTemplate.aggregate(byTag, "tasks",
+                org.bson.Document.class);
+
+        Map<String, Long> tasksByTag = new HashMap<>();
+
+        for (org.bson.Document doc : results) {
+            tasksByTag.put(doc.getString("tag"), doc.get("count",Number.class).longValue());
+        }
+        return tasksByTag;
     }
 }
