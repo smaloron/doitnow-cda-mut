@@ -22,4 +22,7 @@ public class Task {
     private String description;
     private boolean completed;
 
+    @Indexed
+    private String userId;
+
 }

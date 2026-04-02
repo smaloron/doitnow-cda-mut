@@ -9,7 +9,7 @@ Authorization: Bearer {{jwt}}
 
 
 {
-  "title": "Apprendre Spring Boot",
+  "title": "Apprendre .NET",
   "description": "Coder une application REST"
 }
 

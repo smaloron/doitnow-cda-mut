@@ -4,7 +4,10 @@ import com.example.doitnow.dto.CreateTaskDTO;
 import com.example.doitnow.dto.TaskDTO;
 import com.example.doitnow.exception.ResourceNotFoundException;
 import com.example.doitnow.model.Task;
+import com.example.doitnow.model.User;
 import com.example.doitnow.repository.TaskRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,10 +23,17 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
+    private String getCurrentUserId(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
+        return user.getId();
+    }
+
     public TaskDTO save(CreateTaskDTO taskToCreate) {
         Task task = new Task();
         task.setDescription(taskToCreate.getDescription());
         task.setTitle(taskToCreate.getTitle());
+        task.setUserId(getCurrentUserId());
 
         Task savedTask = taskRepository.save(task);
 
@@ -32,7 +42,7 @@ public class TaskService {
     }
 
     public TaskDTO updateTask(String id, TaskDTO taskDTO) {
-        this.taskRepository.findById(id).orElseThrow(
+        this.taskRepository.findByIdAndUserId(id, getCurrentUserId()).orElseThrow(
                 ()->new ResourceNotFoundException("La tâche " + id + " n'existe pas")
         );
         Task task = convertToEntity(taskDTO);
@@ -42,19 +52,19 @@ public class TaskService {
     }
 
     public List<TaskDTO> getAllTasks() {
-        return taskRepository.findAll().stream()
+        return taskRepository.findByUserId(getCurrentUserId()).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public TaskDTO findTaskById(String id) {
-        return taskRepository.findById(id)
+        return taskRepository.findByIdAndUserId(id, getCurrentUserId())
                 .map(this::convertToDTO)
                 .orElseThrow(()-> new ResourceNotFoundException("La tâche " + id + " n'existe pas"));
     }
 
     public void deleteTask(String id) {
-        this.taskRepository.findById(id).orElseThrow(
+        this.taskRepository.findByIdAndUserId(id, getCurrentUserId()).orElseThrow(
                 ()->new ResourceNotFoundException("La tâche " + id + " n'existe pas")
         );
         taskRepository.deleteById(id);
@@ -67,6 +77,7 @@ public class TaskService {
         dto.setTitle(task.getTitle());
         dto.setDescription(task.getDescription());
         dto.setCompleted(task.isCompleted());
+        dto.setUserId(task.getUserId());
         return dto;
     }
 

@@ -17,6 +17,8 @@ public class TaskDTO {
 
     private boolean completed = false;
 
+    private String userId;
+
     public String getId() {
         return id;
     }
@@ -50,6 +52,15 @@ public class TaskDTO {
 
     public TaskDTO setCompleted(boolean completed) {
         this.completed = completed;
+        return this;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public TaskDTO setUserId(String userId) {
+        this.userId = userId;
         return this;
     }
 }
