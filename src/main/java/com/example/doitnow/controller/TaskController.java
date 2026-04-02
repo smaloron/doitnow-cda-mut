@@ -2,8 +2,10 @@ package com.example.doitnow.controller;
 
 import com.example.doitnow.dto.CreateTaskDTO;
 import com.example.doitnow.dto.TaskDTO;
+import com.example.doitnow.dto.TaskStats;
 import com.example.doitnow.model.Priority;
 import com.example.doitnow.service.TaskService;
+import com.example.doitnow.service.TaskStatsService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +16,12 @@ import java.util.List;
 @RequestMapping("/api/tasks")
 public class TaskController {
 
-    private TaskService taskService;
+    private final TaskStatsService taskStatsService;
+    private final TaskService taskService;
 
-    public TaskController(TaskService taskService) {
+    public TaskController(TaskService taskService, TaskStatsService taskStatsService) {
         this.taskService = taskService;
+        this.taskStatsService = taskStatsService;
     }
 
     @GetMapping("/{id}")
@@ -66,6 +70,12 @@ public class TaskController {
     getOverdueTasks() {
         return ResponseEntity.ok(
                 taskService.getOverdueTasks());
+    }
+
+    @GetMapping("/stats")
+    public TaskStats getStats(){
+        String userId = taskService.getCurrentUserId();
+        return taskStatsService.getStatsForUserId(userId);
     }
 
 }

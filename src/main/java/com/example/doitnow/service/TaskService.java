@@ -25,7 +25,7 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    private String getCurrentUserId(){
+    public String getCurrentUserId(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) auth.getPrincipal();
         return user.getId();

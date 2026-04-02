@@ -88,3 +88,8 @@ Authorization: Bearer {{jwt}}
     client.assert(response.status === 404, "Attendu 404", "reçu " + response.status)
 })
 %}
+
+### Statistiques
+GET {{baseUrl}}/stats
+Accept: application/json
+Authorization: Bearer {{jwt}}
