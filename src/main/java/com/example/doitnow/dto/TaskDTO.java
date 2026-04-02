@@ -1,8 +1,16 @@
 package com.example.doitnow.dto;
 
+import com.example.doitnow.model.Priority;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
+import java.time.LocalDate;
+import java.util.List;
+
+@Data
 public class TaskDTO {
 
 
@@ -19,48 +27,12 @@ public class TaskDTO {
 
     private String userId;
 
-    public String getId() {
-        return id;
-    }
+    @NotNull(message = "La priorité est obligatoire")
+    private Priority priority = Priority.MEDIUM;
 
-    public TaskDTO setId(String id) {
-        this.id = id;
-        return this;
-    }
+    private List<String> tags;
 
-    public String getTitle() {
-        return title;
-    }
+    @FutureOrPresent(message = "La date d'échéance ne peut être dans le passé")
+    private LocalDate dueDate;
 
-    public TaskDTO setTitle(String title) {
-        this.title = title;
-        return this;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public TaskDTO setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public TaskDTO setCompleted(boolean completed) {
-        this.completed = completed;
-        return this;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public TaskDTO setUserId(String userId) {
-        this.userId = userId;
-        return this;
-    }
 }
