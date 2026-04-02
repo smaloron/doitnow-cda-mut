@@ -12,4 +12,5 @@ public class TaskStats {
     private long overdue;
     private double completionRate = 0.0;
     private Map<String, Long> taskByPriority;
+    private Map<String, Long> taskByTag;
 }
