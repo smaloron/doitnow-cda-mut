@@ -36,6 +36,9 @@ public class TaskService {
         task.setDescription(taskToCreate.getDescription());
         task.setTitle(taskToCreate.getTitle());
         task.setUserId(getCurrentUserId());
+        task.setPriority(taskToCreate.getPriority());
+        task.setTags(taskToCreate.getTags());
+        task.setDueDate(taskToCreate.getDueDate());
 
         Task savedTask = taskRepository.save(task);
 
@@ -108,6 +111,8 @@ public class TaskService {
         dto.setPriority(task.getPriority());
         dto.setTags(task.getTags());
         dto.setDueDate(task.getDueDate());
+        dto.setCreatedAt(task.getCreatedAt());
+        dto.setUpdatedAt(task.getUpdatedAt());
         return dto;
     }
 
@@ -120,6 +125,7 @@ public class TaskService {
         task.setPriority(dto.getPriority());
         task.setTags(dto.getTags());
         task.setDueDate(dto.getDueDate());
+
         return task;
     }
 }

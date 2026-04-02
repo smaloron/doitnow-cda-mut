@@ -1,8 +1,16 @@
 package com.example.doitnow.dto;
 
+import com.example.doitnow.model.Priority;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
+import java.time.LocalDate;
+import java.util.List;
+
+@Data
 public class CreateTaskDTO {
 
     @NotBlank(message = "Le titre ne peut être vide")
@@ -12,21 +20,11 @@ public class CreateTaskDTO {
     @Size(max=500, message = "La description ne peut dépasser 500 caractères")
     private String description;
 
-    public String getTitle() {
-        return title;
-    }
+    @NotNull(message = "La priorité est obligatoire")
+    private Priority priority = Priority.MEDIUM;
 
-    public CreateTaskDTO setTitle(String title) {
-        this.title = title;
-        return this;
-    }
+    private List<String> tags;
 
-    public String getDescription() {
-        return description;
-    }
-
-    public CreateTaskDTO setDescription(String description) {
-        this.description = description;
-        return this;
-    }
+    @FutureOrPresent(message = "La date d'échéance ne peut être dans le passé")
+    private LocalDate dueDate;
 }

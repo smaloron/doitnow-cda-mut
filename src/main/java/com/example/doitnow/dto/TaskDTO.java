@@ -35,4 +35,7 @@ public class TaskDTO {
     @FutureOrPresent(message = "La date d'échéance ne peut être dans le passé")
     private LocalDate dueDate;
 
+    private LocalDate createdAt;
+
+    private LocalDate updatedAt;
 }

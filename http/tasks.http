@@ -10,7 +10,8 @@ Authorization: Bearer {{jwt}}
 
 {
   "title": "Apprendre .NET",
-  "description": "Coder une application REST"
+  "description": "Coder une application REST",
+  "tags": ["Microsoft", ".NET"]
 }
 
 > {% client.global.set("taskId", response.body.id); %}
